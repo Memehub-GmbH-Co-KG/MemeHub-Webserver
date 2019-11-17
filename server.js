@@ -45,7 +45,7 @@ app.use(bodyparser({
 }));
 
 router.get('/votes', async (ctx, next) => {
-    const data = await rs.get('votes', ctx.state.user);
+    const data = await rs.get('votes', ctx.state.user.id);
     if (data.count > 1) {
         console.log("Error while retrieving vote data: Multiple results for user " + ctx.user);
         ctx.status = 500;
@@ -70,13 +70,13 @@ router.post('/votes', async (ctx, next) => {
         return;
     }
 
-    rs.post('votes', ctx.state.user, votes);
+    rs.post('votes', ctx.state.user.id, votes);
     ctx.status = 200;
 });
 
 
 router.get('/user', async (ctx, next) => {
-    ctx.body = { name: ctx.state.user };
+    ctx.body = ctx.state.user;
     ctx.status = 200;
 });
 
@@ -86,7 +86,7 @@ app
 
 app.listen(3040, () => {
     console.log('server started on http://localhost:3040');
-})
+});
 
 function areVotesValid(votes) {
     for (const vote in votes) {
