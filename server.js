@@ -76,7 +76,7 @@ router.post('/votes', async (ctx, next) => {
 
 
 router.get('/user', async (ctx, next) => {
-    ctx.body = ctx.state.user;
+    ctx.body = { name: ctx.state.user.name };
     ctx.status = 200;
 });
 
