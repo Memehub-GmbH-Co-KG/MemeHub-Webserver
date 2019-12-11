@@ -3,3 +3,4 @@ node_modules
 users.json
 votes
 package-lock.json
+nominees.json
