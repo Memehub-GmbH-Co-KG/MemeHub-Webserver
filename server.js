@@ -84,8 +84,8 @@ app
     .use(router.routes())
     .use(router.allowedMethods());
 
-app.listen(3040, () => {
-    console.log('server started on http://localhost:3040');
+app.listen(2355, () => {
+    console.log('server started on http://localhost:2355');
 });
 
 function areVotesValid(votes) {
