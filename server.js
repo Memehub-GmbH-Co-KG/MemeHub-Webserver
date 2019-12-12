@@ -91,7 +91,7 @@ app.listen(2355, () => {
 function areVotesValid(votes) {
     for (const vote in votes) {
         if (!nominees[vote]) return false;
-        if (!nominees[vote].some(n => n.id === votes[vote])) return false;
+        if (!nominees[vote].some(n => n === votes[vote])) return false;
     }
     return true;
 }
