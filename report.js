@@ -1,4 +1,4 @@
-
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const rs = require('rocket-store');
 const nominees = require('./nominees.json');
 
@@ -10,10 +10,9 @@ rs.options({
 runReport();
 
 async function runReport() {
-    
     const votes = await rs.get('votes');
     const report = countVotes(votes);
-    printReport(report);
+    await printReport(report);
 }
 
 function createReportObject() {
@@ -67,7 +66,19 @@ function countVotes(votes) {
     return report;
 }
 
-function printReport(report) {
+async function printReport(report) {
+    const csvWriter = createCsvWriter({
+        path: 'report.csv',
+        alwaysQuote: false,
+        fieldDelimiter: ",",
+        header: [
+            { id: 'id', title: 'id' },
+            { id: 'category', title: 'category' },
+            { id: 'votes', title: 'votes' }
+        ]
+    });
+    const csv = [];
+    
     console.log("\n=== Vote Report ===\n");
     console.log(` Total amount of votes cast      : ${report.votes}`);
     console.log(` Total amount of users who voted : ${report.voters}`);
@@ -81,7 +92,9 @@ function printReport(report) {
         for (const nominee of sortedNominees) {
             const percentage = (nominee.votes / category.votes * 100).toFixed(1) + "%";
             console.log(`  ${nominee.id.padEnd(63)} : ${nominee.votes.toString().padEnd(3)} (${percentage.padStart(6)})`);
+            csv.push({ id: nominee.id, category: categoryName, votes: nominee.votes});
         }
-
     }
+
+    await csvWriter.writeRecords(csv);
 }
