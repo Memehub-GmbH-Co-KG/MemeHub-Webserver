@@ -1,9 +1,9 @@
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const rs = require('rocket-store');
-const nominees = require('./nominees.json');
+const nominees = require('./nominees.js');
 
 rs.options({
-    data_storage_area: "votes",
+    data_storage_area: process.env.MHA_DATA_PATH || '/data',
     data_format: rs._FORMAT_JSON
 });
 
@@ -28,7 +28,7 @@ function createReportObject() {
             nominees: {}
         };
         for (const nominee of nominees[category]) {
-            report.categories[category].nominees[nominee] = {
+            report.categories[category].nominees[nominee.id] = {
                 votes: 0
             }
         }
@@ -38,7 +38,7 @@ function createReportObject() {
 
 function countVotes(votes) {
     const report = createReportObject();
-    
+
     for (const vote of votes.result) {
         if (Object.keys(vote).length < 1) {
             report.ignoredVoters += 1;
@@ -78,7 +78,7 @@ async function printReport(report) {
         ]
     });
     const csv = [];
-    
+
     console.log("\n=== Vote Report ===\n");
     console.log(` Total amount of votes cast      : ${report.votes}`);
     console.log(` Total amount of users who voted : ${report.voters}`);
@@ -87,12 +87,12 @@ async function printReport(report) {
         const category = report.categories[categoryName];
         console.log(`\n${categoryName}\n`);
         console.log(`  Total amount of votes cast: ${category.votes}\n`);
-        
+
         const sortedNominees = Object.keys(category.nominees).map(n => ({ id: n, votes: category.nominees[n].votes })).sort((a, b) => b.votes - a.votes);
         for (const nominee of sortedNominees) {
             const percentage = (nominee.votes / category.votes * 100).toFixed(1) + "%";
             console.log(`  ${nominee.id.padEnd(63)} : ${nominee.votes.toString().padEnd(3)} (${percentage.padStart(6)})`);
-            csv.push({ id: nominee.id, category: categoryName, votes: nominee.votes});
+            csv.push({ id: nominee.id, category: categoryName, votes: nominee.votes });
         }
     }
 

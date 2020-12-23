@@ -1,15 +1,15 @@
 const Koa = require('koa');
 const Router = require('koa-router');
 const bodyparser = require('koa-bodyparser');
-const cors = require('koa-cors');
-const users = require('./users.json');
-const nominees = require('./nominees.json');
+const cors = require('@koa/cors');
+const users = require('./users.js');
+const nominees = require('./nominees.js');
 const rs = require('rocket-store');
 const app = new Koa();
 const router = new Router();
 
 rs.options({
-    data_storage_area: "votes",
+    data_storage_area: process.env.MHA_DATA_PATH || '/data',
     data_format: rs._FORMAT_JSON
 });
 
@@ -39,15 +39,17 @@ app.use(async (ctx, next) => {
     await next();
 });
 
+// Parse body as json
 app.use(bodyparser({
     enableTypes: ['json'],
     jsonLimit: '128kb'
 }));
 
+// Returns the votes that are stored for the user.
 router.get('/votes', async (ctx, next) => {
     const data = await rs.get('votes', ctx.state.user.id);
     if (data.count > 1) {
-        console.log("Error while retrieving vote data: Multiple results for user " + ctx.user);
+        console.log("Error while retrieving vote data: Multiple results for user " + ctx.state.user.id);
         ctx.status = 500;
         return;
     }
@@ -63,6 +65,7 @@ router.get('/votes', async (ctx, next) => {
     ctx.status = 200;
 });
 
+// Overwrites the votes of the user.
 router.post('/votes', async (ctx, next) => {
     let votes = ctx.request.body;
     if (!areVotesValid(votes)) {
@@ -74,24 +77,33 @@ router.post('/votes', async (ctx, next) => {
     ctx.status = 200;
 });
 
-
+// Returns the name of the user.
 router.get('/user', async (ctx, next) => {
     ctx.body = { name: ctx.state.user.name };
     ctx.status = 200;
+});
+
+// Returns all categories and nominees
+router.get('/nominees', async (ctx, next) => {
+    ctx.body = nominees;
 });
 
 app
     .use(router.routes())
     .use(router.allowedMethods());
 
-app.listen(2355, () => {
-    console.log('server started on http://localhost:2355');
+app.listen(80, () => {
+    console.log('server started on http://localhost:80');
 });
 
+/**
+ * Checks if a votes object is valid. Keys are categories and values are meme ids.
+ * @param {object} votes The votes to check
+ */
 function areVotesValid(votes) {
-    for (const vote in votes) {
-        if (!nominees[vote]) return false;
-        if (!nominees[vote].some(n => n === votes[vote])) return false;
+    for (const category in votes) {
+        if (!nominees[category]) return false;
+        if (!nominees[category].some(n => n.id === votes[category])) return false;
     }
     return true;
 }
