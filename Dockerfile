@@ -1,4 +1,4 @@
-FROM node:15-alpine
+FROM node:current-alpine
 WORKDIR /usr/src/memehub-webserver
 COPY package*.json ./
 RUN npm install
