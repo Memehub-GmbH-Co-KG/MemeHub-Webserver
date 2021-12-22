@@ -1,6 +1,6 @@
 {
   "name": "memehub-webserver",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A simple koa api that allows saving votes for the MemeHub Awards 2019.",
   "repository": {
     "type": "git",
@@ -14,11 +14,11 @@
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
-    "csv-writer": "^1.5.0",
-    "koa": "^2.11.0",
-    "koa-bodyparser": "^4.2.1",
-    "koa-router": "^7.4.0",
-    "node-fetch": "^2.6.1",
-    "rocket-store": "^0.10.6"
+    "csv-writer": "^1.6.0",
+    "koa": "^2.13.4",
+    "koa-bodyparser": "^4.3.0",
+    "koa-router": "^10.1.1",
+    "node-fetch": "^3.1.0",
+    "rocket-store": "^0.10.8"
   }
 }
